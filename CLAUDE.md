@@ -1,48 +1,48 @@
 # CLAUDE.md — N8N Workflows Repository
 
-## Repository Overview
+## Projektübersicht
 
-This repository stores [n8n](https://n8n.io/) workflow automation definitions. n8n is a self-hostable, node-based workflow automation tool that connects APIs, services, and data sources without writing custom integration code.
+Dieses Repository speichert [n8n](https://n8n.io/) Workflow-Automatisierungsdefinitionen. n8n ist ein selbst hostbares, knotenbasiertes Automatisierungstool, das APIs, Dienste und Datenquellen ohne benutzerdefinierten Integrationscode verbindet.
 
-Workflows are exported and stored as **JSON files** from an n8n instance, enabling version control, collaboration, and reuse across environments.
+Workflows werden als **JSON-Dateien** aus einer n8n-Instanz exportiert und hier gespeichert, um Versionskontrolle, Zusammenarbeit und Wiederverwendung über Umgebungen hinweg zu ermöglichen.
 
 ---
 
-## Repository Structure
+## Repository-Struktur
 
 ```
 N8N_Workflows-/
-├── CLAUDE.md                  # This file
-├── workflows/                 # Main workflow JSON files (by category or feature)
-│   ├── <category>/
+├── CLAUDE.md                  # Diese Datei
+├── workflows/                 # Workflow-JSON-Dateien (nach Kategorie oder Funktion)
+│   ├── <kategorie>/
 │   │   └── <workflow-name>.json
 │   └── <workflow-name>.json
-├── credentials/               # Credential templates (NO real secrets — placeholders only)
-│   └── <service>-template.json
-├── docs/                      # Human-readable documentation per workflow
+├── credentials/               # Credential-Vorlagen (KEINE echten Zugangsdaten — nur Platzhalter)
+│   └── <dienst>-vorlage.json
+├── docs/                      # Menschenlesbare Dokumentation pro Workflow
 │   └── <workflow-name>.md
-└── README.md                  # Project overview for humans
+└── README.md                  # Projektübersicht für Menschen
 ```
 
-> **Note:** The exact directory layout may evolve. Keep workflows grouped logically by integration, department, or function.
+> **Hinweis:** Die genaue Verzeichnisstruktur kann sich weiterentwickeln. Workflows sollten logisch nach Integration, Abteilung oder Funktion gruppiert werden.
 
 ---
 
-## What is an n8n Workflow JSON?
+## Was ist eine n8n-Workflow-JSON?
 
-Each `.json` file is a complete workflow export from n8n containing:
+Jede `.json`-Datei ist ein vollständiger Workflow-Export aus n8n und enthält:
 
-- **`nodes`** — array of node objects (each node is a step in the automation)
-- **`connections`** — wiring between nodes (what feeds into what)
-- **`settings`** — execution settings (timeout, error handling, timezone)
-- **`staticData`** — persisted state across executions (if any)
-- **`meta`** — workflow metadata (n8n version, template ID)
+- **`nodes`** — Array von Node-Objekten (jeder Node ist ein Schritt im Automatisierungsablauf)
+- **`connections`** — Verbindungen zwischen Nodes (was in was einfließt)
+- **`settings`** — Ausführungseinstellungen (Timeout, Fehlerbehandlung, Zeitzone)
+- **`staticData`** — Persistierter Zustand über Ausführungen hinweg (falls vorhanden)
+- **`meta`** — Workflow-Metadaten (n8n-Version, Template-ID)
 
-Example minimal structure:
+Beispiel einer minimalen Struktur:
 
 ```json
 {
-  "name": "My Workflow",
+  "name": "Mein Workflow",
   "nodes": [...],
   "connections": {...},
   "settings": {
@@ -54,104 +54,104 @@ Example minimal structure:
 
 ---
 
-## Key Conventions
+## Wichtige Konventionen
 
-### File Naming
+### Dateinamen
 
-- Use **kebab-case** for all filenames: `slack-alert-on-error.json`
-- Prefix with a category if no subdirectory is used: `crm-lead-sync.json`
-- Avoid spaces and special characters in file names
+- **Kebab-Case** für alle Dateinamen verwenden: `slack-benachrichtigung-bei-fehler.json`
+- Bei fehlendem Unterverzeichnis mit einer Kategorie prefixen: `crm-lead-synchronisation.json`
+- Keine Leerzeichen oder Sonderzeichen in Dateinamen
 
-### Workflow Naming (inside JSON)
+### Workflow-Namen (innerhalb der JSON)
 
-- Workflow `"name"` field should be **human-readable** and descriptive
-- Use title case: `"Slack Alert on Error"`
-- Keep names under 60 characters
+- Das Feld `"name"` soll **menschenlesbar** und beschreibend sein
+- Titelschreibweise verwenden: `"Slack Benachrichtigung bei Fehler"`
+- Namen auf 60 Zeichen begrenzen
 
-### Credentials
+### Zugangsdaten (Credentials)
 
-- **Never commit real credentials, API keys, tokens, or passwords**
-- Replace sensitive values in exported JSON with placeholders like `"<YOUR_API_KEY>"` or `"REPLACE_ME"`
-- Provide a `credentials/` template file explaining what each field requires
-- Use n8n's built-in credential manager on the server; only template schemas live here
+- **Niemals echte Zugangsdaten, API-Schlüssel, Tokens oder Passwörter committen**
+- Sensible Werte in exportierten JSONs durch Platzhalter ersetzen, z. B. `"<DEIN_API_SCHLÜSSEL>"` oder `"ERSETZEN"`
+- Im Verzeichnis `credentials/` eine Vorlagendatei bereitstellen, die erklärt, was jedes Feld benötigt
+- n8ns eingebauten Credential-Manager auf dem Server nutzen — hier liegen nur Schema-Vorlagen
 
-### Node IDs
+### Node-IDs
 
-- n8n generates UUIDs for each node (`"id"` fields inside nodes)
-- Do not manually edit node IDs — they are used for internal connection references
-- When merging or deduplicating, keep IDs stable
+- n8n generiert UUIDs für jeden Node (Feld `"id"` innerhalb der Nodes)
+- Node-IDs niemals manuell bearbeiten — sie werden für interne Verbindungsreferenzen verwendet
+- Beim Zusammenführen oder Deduplizieren IDs stabil halten
 
-### Version Control Practices
+### Versionskontrolle
 
-- **One workflow per file** — never bundle multiple unrelated workflows into one JSON
-- Export from n8n via `Workflow → Download` or the n8n CLI/API
-- Import to n8n via `Workflow → Import from file` or the n8n CLI/API
-- Always test a workflow in a **staging n8n instance** before adding to this repo
-
----
-
-## Development Workflow
-
-### Adding a New Workflow
-
-1. Build and test the workflow in your n8n instance
-2. Export it: `Workflow menu → Download`
-3. Strip or replace any credentials/secrets in the JSON
-4. Save to `workflows/<category>/<workflow-name>.json`
-5. Add a brief doc in `docs/<workflow-name>.md` describing:
-   - Purpose
-   - Trigger type (webhook, schedule, manual)
-   - Required credentials/environment variables
-   - Expected inputs and outputs
-6. Open a PR for review
-
-### Updating an Existing Workflow
-
-1. Import the existing JSON into your n8n instance
-2. Make changes and test
-3. Re-export and replace the file in the repo
-4. Update the corresponding `docs/` file if behavior changed
-5. Commit with a descriptive message (see below)
-
-### Deleting a Workflow
-
-- Remove the `.json` file and its `docs/` counterpart
-- Note in the commit message why it was removed (deprecated, replaced by another, etc.)
+- **Ein Workflow pro Datei** — niemals mehrere unzusammenhängende Workflows in eine JSON bündeln
+- Export aus n8n über `Workflow → Herunterladen` oder die n8n-CLI/API
+- Import in n8n über `Workflow → Aus Datei importieren` oder die n8n-CLI/API
+- Workflows immer zuerst in einer **Staging-n8n-Instanz** testen, bevor sie ins Repository aufgenommen werden
 
 ---
 
-## Git Commit Conventions
+## Entwicklungsablauf
 
-Use clear, imperative commit messages:
+### Neuen Workflow hinzufügen
+
+1. Workflow in der n8n-Instanz erstellen und testen
+2. Exportieren: `Workflow-Menü → Herunterladen`
+3. Zugangsdaten/Secrets aus der JSON entfernen oder durch Platzhalter ersetzen
+4. Unter `workflows/<kategorie>/<workflow-name>.json` speichern
+5. Kurze Dokumentation in `docs/<workflow-name>.md` erstellen mit:
+   - Zweck des Workflows
+   - Trigger-Typ (Webhook, Zeitplan, manuell)
+   - Benötigte Zugangsdaten/Umgebungsvariablen
+   - Erwartete Eingaben und Ausgaben
+6. Pull Request zur Überprüfung öffnen
+
+### Bestehenden Workflow aktualisieren
+
+1. Vorhandene JSON in die n8n-Instanz importieren
+2. Änderungen vornehmen und testen
+3. Erneut exportieren und die Datei im Repository ersetzen
+4. Zugehörige `docs/`-Datei aktualisieren, falls sich das Verhalten geändert hat
+5. Commit mit beschreibender Nachricht erstellen (siehe unten)
+
+### Workflow löschen
+
+- `.json`-Datei und die zugehörige `docs/`-Datei entfernen
+- In der Commit-Nachricht begründen, warum er entfernt wurde (veraltet, durch anderen ersetzt usw.)
+
+---
+
+## Git-Commit-Konventionen
+
+Klare, imperativische Commit-Nachrichten verwenden:
 
 ```
-add: slack-alert-on-error workflow
-update: crm-lead-sync - add retry logic on HTTP 429
-fix: broken connection in data-enrichment workflow
-remove: legacy-hubspot-sync (replaced by hubspot-v2-sync)
-docs: add documentation for stripe-payment-capture
+add: slack-benachrichtigung-bei-fehler Workflow
+update: crm-lead-synchronisation - Wiederholungslogik bei HTTP 429 ergänzt
+fix: fehlerhafte Verbindung im daten-anreicherung Workflow behoben
+remove: legacy-hubspot-sync (ersetzt durch hubspot-v2-sync)
+docs: Dokumentation für stripe-zahlungserfassung hinzugefügt
 ```
 
-Prefix options: `add`, `update`, `fix`, `remove`, `docs`, `refactor`, `chore`
+Erlaubte Präfixe: `add`, `update`, `fix`, `remove`, `docs`, `refactor`, `chore`
 
 ---
 
-## Importing & Exporting Workflows (n8n CLI)
+## Workflows importieren & exportieren (n8n-CLI)
 
-If the n8n CLI is available:
+Falls die n8n-CLI verfügbar ist:
 
 ```bash
-# Export a workflow by ID
+# Workflow nach ID exportieren
 n8n export:workflow --id=<workflow-id> --output=workflows/<name>.json
 
-# Import a workflow
+# Workflow importieren
 n8n import:workflow --input=workflows/<name>.json
 
-# Export all workflows
+# Alle Workflows exportieren
 n8n export:workflow --all --output=workflows/
 ```
 
-If using the n8n REST API:
+Über die n8n-REST-API:
 
 ```bash
 # Export via API
@@ -169,88 +169,88 @@ curl -X POST \
 
 ---
 
-## AI Assistant Guidelines
+## Richtlinien für KI-Assistenten
 
-When analyzing or modifying workflows in this repository:
+Beim Analysieren oder Bearbeiten von Workflows in diesem Repository:
 
-### Reading Workflows
+### Workflows lesen
 
-- Parse the `nodes` array to understand the automation steps
-- Follow `connections` to trace the data flow from trigger to final action
-- Check `settings.executionOrder` — `"v1"` is the modern execution model
-- Identify the trigger node (type usually contains `Trigger`, e.g., `n8n-nodes-base.webhookTrigger`, `n8n-nodes-base.scheduleTrigger`)
+- Das `nodes`-Array parsen, um die Automatisierungsschritte zu verstehen
+- `connections` verfolgen, um den Datenfluss vom Trigger bis zur letzten Aktion nachzuverfolgen
+- `settings.executionOrder` prüfen — `"v1"` ist das moderne Ausführungsmodell
+- Den Trigger-Node identifizieren (Typ enthält meist `Trigger`, z. B. `n8n-nodes-base.webhookTrigger`, `n8n-nodes-base.scheduleTrigger`)
 
-### Modifying Workflows
+### Workflows bearbeiten
 
-- Preserve all existing `"id"` fields on nodes and the workflow itself
-- Do not reorder the `nodes` array — positions are cosmetic but ordering can matter
-- Keep `connections` consistent with any node additions/removals
-- Validate JSON is well-formed before committing (`jq . <file.json>`)
+- Alle bestehenden `"id"`-Felder von Nodes und des Workflows selbst beibehalten
+- Die Reihenfolge des `nodes`-Arrays nicht verändern — Positionen sind kosmetisch, die Reihenfolge kann jedoch relevant sein
+- `connections` konsistent mit hinzugefügten oder entfernten Nodes halten
+- JSON-Wohlgeformtheit vor dem Committen prüfen (`jq . <datei.json>`)
 
-### Creating New Workflows
+### Neue Workflows erstellen
 
-- Start from an exported n8n workflow template, not from scratch
-- Follow file naming and workflow naming conventions above
-- Never invent credential values — use placeholder strings
+- Von einem exportierten n8n-Workflow-Template ausgehen, nicht von Grund auf neu beginnen
+- Datei- und Workflow-Namenskonventionen oben einhalten
+- Keine Credential-Werte erfinden — Platzhalter-Strings verwenden
 
-### Security
+### Sicherheit
 
-- Scan for accidental secrets before every commit:
+- Vor jedem Commit auf versehentliche Secrets prüfen:
   ```bash
   grep -rE "(api_key|apikey|password|secret|token|Bearer)" workflows/ --include="*.json"
   ```
-- If secrets are found, replace with `"REPLACE_ME"` and note in docs what value is needed
-- Do not add `.env` files or credential exports to this repo
+- Falls Secrets gefunden werden, durch `"ERSETZEN"` ersetzen und in der Dokumentation vermerken, welcher Wert benötigt wird
+- Keine `.env`-Dateien oder Credential-Exporte in dieses Repository aufnehmen
 
-### JSON Validation
+### JSON-Validierung
 
-Before committing any workflow JSON:
+Vor dem Committen jede Workflow-JSON validieren:
 
 ```bash
-# Validate all workflow JSON files
+# Alle Workflow-JSON-Dateien validieren
 for f in workflows/**/*.json; do
-  jq empty "$f" && echo "OK: $f" || echo "INVALID: $f"
+  jq empty "$f" && echo "OK: $f" || echo "UNGÜLTIG: $f"
 done
 ```
 
 ---
 
-## Environment Variables / Configuration
+## Umgebungsvariablen / Konfiguration
 
-If this repository is used with CI/CD or scripting, the following environment variables may be referenced:
+Falls dieses Repository mit CI/CD oder Skripten verwendet wird, können folgende Umgebungsvariablen referenziert werden:
 
-| Variable | Description |
+| Variable | Beschreibung |
 |---|---|
-| `N8N_API_KEY` | API key for authenticating with the n8n instance |
-| `N8N_BASE_URL` | Base URL of the n8n instance (e.g., `https://n8n.example.com`) |
-| `N8N_ENCRYPTION_KEY` | Encryption key for n8n credentials (server-side only) |
+| `N8N_API_KEY` | API-Schlüssel zur Authentifizierung an der n8n-Instanz |
+| `N8N_BASE_URL` | Basis-URL der n8n-Instanz (z. B. `https://n8n.beispiel.de`) |
+| `N8N_ENCRYPTION_KEY` | Verschlüsselungsschlüssel für n8n-Credentials (nur serverseitig) |
 
-These should be set in your environment or CI secrets — **never committed to this repository**.
+Diese Werte müssen in der Umgebung oder in CI-Secrets gesetzt werden — **niemals in dieses Repository committen**.
 
 ---
 
-## Common Node Types Reference
+## Referenz: Häufige Node-Typen
 
-| Node Type | Purpose |
+| Node-Typ | Zweck |
 |---|---|
-| `n8n-nodes-base.webhook` | HTTP webhook trigger |
-| `n8n-nodes-base.scheduleTrigger` | Cron/interval-based trigger |
-| `n8n-nodes-base.httpRequest` | Make HTTP requests to any API |
-| `n8n-nodes-base.set` | Transform/set field values |
-| `n8n-nodes-base.if` | Conditional branching |
-| `n8n-nodes-base.switch` | Multi-branch routing |
-| `n8n-nodes-base.merge` | Combine data from multiple branches |
-| `n8n-nodes-base.code` | Run custom JavaScript/Python |
-| `n8n-nodes-base.noOp` | Passthrough / placeholder node |
-| `n8n-nodes-base.errorTrigger` | Catch workflow execution errors |
+| `n8n-nodes-base.webhook` | HTTP-Webhook-Trigger |
+| `n8n-nodes-base.scheduleTrigger` | Cron-/Intervall-basierter Trigger |
+| `n8n-nodes-base.httpRequest` | HTTP-Anfragen an beliebige APIs senden |
+| `n8n-nodes-base.set` | Feldwerte transformieren oder setzen |
+| `n8n-nodes-base.if` | Bedingte Verzweigung |
+| `n8n-nodes-base.switch` | Mehrfach-Routing |
+| `n8n-nodes-base.merge` | Daten aus mehreren Zweigen zusammenführen |
+| `n8n-nodes-base.code` | Benutzerdefiniertes JavaScript/Python ausführen |
+| `n8n-nodes-base.noOp` | Durchleitungs-/Platzhalter-Node |
+| `n8n-nodes-base.errorTrigger` | Workflow-Ausführungsfehler abfangen |
 
 ---
 
-## Resources
+## Weiterführende Links
 
-- [n8n Documentation](https://docs.n8n.io/)
-- [n8n Node Library](https://n8n.io/integrations/)
-- [n8n Community Forum](https://community.n8n.io/)
-- [n8n Workflow Templates](https://n8n.io/workflows/)
-- [n8n REST API Reference](https://docs.n8n.io/api/)
-- [n8n CLI Reference](https://docs.n8n.io/hosting/cli-commands/)
+- [n8n Dokumentation](https://docs.n8n.io/)
+- [n8n Node-Bibliothek](https://n8n.io/integrations/)
+- [n8n Community-Forum](https://community.n8n.io/)
+- [n8n Workflow-Vorlagen](https://n8n.io/workflows/)
+- [n8n REST-API-Referenz](https://docs.n8n.io/api/)
+- [n8n CLI-Referenz](https://docs.n8n.io/hosting/cli-commands/)
