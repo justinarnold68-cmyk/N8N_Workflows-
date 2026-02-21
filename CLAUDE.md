@@ -23,6 +23,46 @@ Beim Hinzufügen des ersten Workflows bitte die gesamte beschriebene Struktur an
 
 ---
 
+## Mein Setup & Präferenzen
+
+### n8n Instanz
+
+- **Typ:** n8n Cloud (nicht self-hosted)
+- **Version:** 1.123.14
+- **Sprache:** Deutsch — alle Kommunikation, Dateinamen in Docs und Commit-Nachrichten auf Deutsch
+
+### Aktive Credentials / Integrationen
+
+| Dienst | Verwendungszweck |
+|---|---|
+| Google Sheets | Dateneingabe, einfache Listen, temporäre Zwischenspeicherung |
+| Gmail | E-Mail-Versand und -Empfang |
+| *(weitere hier ergänzen)* | *(Beschreibung)* |
+
+### Kundendaten — Speicherung & Sicherheit
+
+- **Ziel:** Kundendaten DSGVO-konform und sicher speichern
+- **Empfohlene Lösung:** Supabase (PostgreSQL, EU-Server, kostenlos bis ~500 MB) oder Airtable
+- **Status:** Noch nicht entschieden — beim ersten Kunden-Workflow gemeinsam festlegen
+- Google Sheets **nicht** für sensible Kundendaten verwenden
+- Keine echten Kundendaten in Workflow-JSONs committen — nur Platzhalter
+
+### Workflow-Präferenzen
+
+- Lieber **native n8n-Nodes** als Code-Nodes (einfacher zu warten)
+- Node-Namen sollen **beschreibend** sein, damit der Workflow selbsterklärend ist
+- Jeder Workflow bekommt eine **Docs-Datei** in `docs/`
+- Beim Erstellen eines Workflows immer zuerst fragen: Trigger → Logik → Aktion
+
+### Wie ich mit Claude arbeite
+
+- Claude liest diese Datei automatisch — hier notieren was er "wissen" soll
+- Neue Erkenntnisse, Entscheidungen oder Tools hier ergänzen
+- Workflow-Status in der Tabelle unter "Aktueller Status" aktuell halten
+- Einfach sagen: *"Baue mir einen Workflow der X macht"* — Claude liefert die JSON
+
+---
+
 ## Repository-Struktur
 
 ```
