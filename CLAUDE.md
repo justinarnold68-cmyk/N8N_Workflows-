@@ -8,23 +8,78 @@ Workflows werden als **JSON-Dateien** aus einer n8n-Instanz exportiert und hier 
 
 ---
 
+## Aktueller Status (Stand: 2026-02-21)
+
+Das Repository befindet sich in der **Initialisierungsphase**. Bisher wurde nur `CLAUDE.md` hinzugefügt. Die folgenden Verzeichnisse und Dateien müssen noch angelegt werden:
+
+| Pfad | Status |
+|---|---|
+| `workflows/` | Noch nicht erstellt |
+| `docs/` | Noch nicht erstellt |
+| `credentials/` | Noch nicht erstellt |
+| `README.md` | Noch nicht erstellt |
+
+Beim Hinzufügen des ersten Workflows bitte die gesamte beschriebene Struktur anlegen.
+
+---
+
+## Mein Setup & Präferenzen
+
+### n8n Instanz
+
+- **Typ:** n8n Cloud (nicht self-hosted)
+- **Version:** 1.123.14
+- **Sprache:** Deutsch — alle Kommunikation, Dateinamen in Docs und Commit-Nachrichten auf Deutsch
+
+### Aktive Credentials / Integrationen
+
+| Dienst | Verwendungszweck |
+|---|---|
+| Google Sheets | Dateneingabe, einfache Listen, temporäre Zwischenspeicherung |
+| Gmail | E-Mail-Versand und -Empfang |
+| *(weitere hier ergänzen)* | *(Beschreibung)* |
+
+### Kundendaten — Speicherung & Sicherheit
+
+- **Ziel:** Kundendaten DSGVO-konform und sicher speichern
+- **Empfohlene Lösung:** Supabase (PostgreSQL, EU-Server, kostenlos bis ~500 MB) oder Airtable
+- **Status:** Noch nicht entschieden — beim ersten Kunden-Workflow gemeinsam festlegen
+- Google Sheets **nicht** für sensible Kundendaten verwenden
+- Keine echten Kundendaten in Workflow-JSONs committen — nur Platzhalter
+
+### Workflow-Präferenzen
+
+- Lieber **native n8n-Nodes** als Code-Nodes (einfacher zu warten)
+- Node-Namen sollen **beschreibend** sein, damit der Workflow selbsterklärend ist
+- Jeder Workflow bekommt eine **Docs-Datei** in `docs/`
+- Beim Erstellen eines Workflows immer zuerst fragen: Trigger → Logik → Aktion
+
+### Wie ich mit Claude arbeite
+
+- Claude liest diese Datei automatisch — hier notieren was er "wissen" soll
+- Neue Erkenntnisse, Entscheidungen oder Tools hier ergänzen
+- Workflow-Status in der Tabelle unter "Aktueller Status" aktuell halten
+- Einfach sagen: *"Baue mir einen Workflow der X macht"* — Claude liefert die JSON
+
+---
+
 ## Repository-Struktur
 
 ```
 N8N_Workflows-/
 ├── CLAUDE.md                  # Diese Datei
+├── README.md                  # Projektübersicht für Menschen
 ├── workflows/                 # Workflow-JSON-Dateien (nach Kategorie oder Funktion)
 │   ├── <kategorie>/
 │   │   └── <workflow-name>.json
 │   └── <workflow-name>.json
 ├── credentials/               # Credential-Vorlagen (KEINE echten Zugangsdaten — nur Platzhalter)
 │   └── <dienst>-vorlage.json
-├── docs/                      # Menschenlesbare Dokumentation pro Workflow
-│   └── <workflow-name>.md
-└── README.md                  # Projektübersicht für Menschen
+└── docs/                      # Menschenlesbare Dokumentation pro Workflow
+    └── <workflow-name>.md
 ```
 
-> **Hinweis:** Die genaue Verzeichnisstruktur kann sich weiterentwickeln. Workflows sollten logisch nach Integration, Abteilung oder Funktion gruppiert werden.
+> **Hinweis:** Workflows sollten logisch nach Integration, Abteilung oder Funktion gruppiert werden. Beispielkategorien: `crm/`, `marketing/`, `finance/`, `devops/`, `notifications/`.
 
 ---
 
@@ -32,23 +87,37 @@ N8N_Workflows-/
 
 Jede `.json`-Datei ist ein vollständiger Workflow-Export aus n8n und enthält:
 
+- **`name`** — Anzeigename des Workflows
 - **`nodes`** — Array von Node-Objekten (jeder Node ist ein Schritt im Automatisierungsablauf)
 - **`connections`** — Verbindungen zwischen Nodes (was in was einfließt)
 - **`settings`** — Ausführungseinstellungen (Timeout, Fehlerbehandlung, Zeitzone)
 - **`staticData`** — Persistierter Zustand über Ausführungen hinweg (falls vorhanden)
 - **`meta`** — Workflow-Metadaten (n8n-Version, Template-ID)
+- **`pinData`** — Festgepinnte Testdaten für Nodes (optional)
 
 Beispiel einer minimalen Struktur:
 
 ```json
 {
   "name": "Mein Workflow",
-  "nodes": [...],
-  "connections": {...},
+  "nodes": [
+    {
+      "id": "uuid-hier",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {}
+    }
+  ],
+  "connections": {},
   "settings": {
     "executionOrder": "v1"
   },
-  "staticData": null
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
 }
 ```
 
@@ -58,9 +127,10 @@ Beispiel einer minimalen Struktur:
 
 ### Dateinamen
 
-- **Kebab-Case** für alle Dateinamen verwenden: `slack-benachrichtigung-bei-fehler.json`
+- **Kebab-Case** für alle Dateinamen: `slack-benachrichtigung-bei-fehler.json`
 - Bei fehlendem Unterverzeichnis mit einer Kategorie prefixen: `crm-lead-synchronisation.json`
-- Keine Leerzeichen oder Sonderzeichen in Dateinamen
+- Keine Leerzeichen, Umlaute oder Sonderzeichen in Dateinamen
+- Nur ASCII-Zeichen und Bindestriche verwenden
 
 ### Workflow-Namen (innerhalb der JSON)
 
@@ -71,14 +141,14 @@ Beispiel einer minimalen Struktur:
 ### Zugangsdaten (Credentials)
 
 - **Niemals echte Zugangsdaten, API-Schlüssel, Tokens oder Passwörter committen**
-- Sensible Werte in exportierten JSONs durch Platzhalter ersetzen, z. B. `"<DEIN_API_SCHLÜSSEL>"` oder `"ERSETZEN"`
+- Sensible Werte in exportierten JSONs durch Platzhalter ersetzen: `"<DEIN_API_SCHLÜSSEL>"` oder `"ERSETZEN"`
 - Im Verzeichnis `credentials/` eine Vorlagendatei bereitstellen, die erklärt, was jedes Feld benötigt
 - n8ns eingebauten Credential-Manager auf dem Server nutzen — hier liegen nur Schema-Vorlagen
 
 ### Node-IDs
 
 - n8n generiert UUIDs für jeden Node (Feld `"id"` innerhalb der Nodes)
-- Node-IDs niemals manuell bearbeiten — sie werden für interne Verbindungsreferenzen verwendet
+- Node-IDs **niemals manuell bearbeiten** — sie werden für interne Verbindungsreferenzen verwendet
 - Beim Zusammenführen oder Deduplizieren IDs stabil halten
 
 ### Versionskontrolle
@@ -103,6 +173,7 @@ Beispiel einer minimalen Struktur:
    - Trigger-Typ (Webhook, Zeitplan, manuell)
    - Benötigte Zugangsdaten/Umgebungsvariablen
    - Erwartete Eingaben und Ausgaben
+   - Bekannte Einschränkungen oder Abhängigkeiten
 6. Pull Request zur Überprüfung öffnen
 
 ### Bestehenden Workflow aktualisieren
@@ -120,9 +191,17 @@ Beispiel einer minimalen Struktur:
 
 ---
 
-## Git-Commit-Konventionen
+## Git-Konventionen
 
-Klare, imperativische Commit-Nachrichten verwenden:
+### Branching
+
+- `master` — stabiler Hauptbranch; nur getestete Workflows
+- Feature-Branches: `add/<workflow-name>`, `update/<workflow-name>`, `fix/<workflow-name>`
+- Claude-Branches: `claude/<beschreibung>-<session-id>` (automatisch generiert)
+
+### Commit-Nachrichten
+
+Klare, imperativische Commit-Nachrichten mit festem Präfix verwenden:
 
 ```
 add: slack-benachrichtigung-bei-fehler Workflow
@@ -130,15 +209,17 @@ update: crm-lead-synchronisation - Wiederholungslogik bei HTTP 429 ergänzt
 fix: fehlerhafte Verbindung im daten-anreicherung Workflow behoben
 remove: legacy-hubspot-sync (ersetzt durch hubspot-v2-sync)
 docs: Dokumentation für stripe-zahlungserfassung hinzugefügt
+refactor: daten-anreicherung in Unterverzeichnis verschoben
+chore: CLAUDE.md aktualisiert
 ```
 
 Erlaubte Präfixe: `add`, `update`, `fix`, `remove`, `docs`, `refactor`, `chore`
 
 ---
 
-## Workflows importieren & exportieren (n8n-CLI)
+## Workflows importieren & exportieren
 
-Falls die n8n-CLI verfügbar ist:
+### n8n-CLI
 
 ```bash
 # Workflow nach ID exportieren
@@ -151,12 +232,12 @@ n8n import:workflow --input=workflows/<name>.json
 n8n export:workflow --all --output=workflows/
 ```
 
-Über die n8n-REST-API:
+### n8n-REST-API
 
 ```bash
 # Export via API
 curl -H "X-N8N-API-KEY: $N8N_API_KEY" \
-  "http://localhost:5678/api/v1/workflows/<id>" \
+  "$N8N_BASE_URL/api/v1/workflows/<id>" \
   | jq . > workflows/<name>.json
 
 # Import via API
@@ -164,60 +245,85 @@ curl -X POST \
   -H "X-N8N-API-KEY: $N8N_API_KEY" \
   -H "Content-Type: application/json" \
   -d @workflows/<name>.json \
-  "http://localhost:5678/api/v1/workflows"
+  "$N8N_BASE_URL/api/v1/workflows"
+
+# Alle Workflows auflisten
+curl -H "X-N8N-API-KEY: $N8N_API_KEY" \
+  "$N8N_BASE_URL/api/v1/workflows" | jq '.data[].name'
 ```
 
 ---
 
 ## Richtlinien für KI-Assistenten
 
-Beim Analysieren oder Bearbeiten von Workflows in diesem Repository:
-
 ### Workflows lesen
 
 - Das `nodes`-Array parsen, um die Automatisierungsschritte zu verstehen
 - `connections` verfolgen, um den Datenfluss vom Trigger bis zur letzten Aktion nachzuverfolgen
 - `settings.executionOrder` prüfen — `"v1"` ist das moderne Ausführungsmodell
-- Den Trigger-Node identifizieren (Typ enthält meist `Trigger`, z. B. `n8n-nodes-base.webhookTrigger`, `n8n-nodes-base.scheduleTrigger`)
+- Den Trigger-Node identifizieren (Typ enthält meist `Trigger`)
+- `pinData` beachten — festgepinnte Daten überschreiben echte Node-Ausgaben beim Testen
 
 ### Workflows bearbeiten
 
-- Alle bestehenden `"id"`-Felder von Nodes und des Workflows selbst beibehalten
-- Die Reihenfolge des `nodes`-Arrays nicht verändern — Positionen sind kosmetisch, die Reihenfolge kann jedoch relevant sein
+- Alle bestehenden `"id"`-Felder von Nodes und des Workflows selbst **beibehalten**
+- Die Reihenfolge des `nodes`-Arrays nicht verändern
 - `connections` konsistent mit hinzugefügten oder entfernten Nodes halten
-- JSON-Wohlgeformtheit vor dem Committen prüfen (`jq . <datei.json>`)
+- `typeVersion`-Werte nicht ohne Grund ändern — sie steuern das Node-Verhalten
+- JSON-Wohlgeformtheit vor dem Committen prüfen: `jq . <datei.json>`
+- `position`-Felder in Nodes können angepasst werden (nur kosmetisch)
 
 ### Neue Workflows erstellen
 
 - Von einem exportierten n8n-Workflow-Template ausgehen, nicht von Grund auf neu beginnen
-- Datei- und Workflow-Namenskonventionen oben einhalten
+- Datei- und Workflow-Namenskonventionen einhalten
 - Keine Credential-Werte erfinden — Platzhalter-Strings verwenden
+- Sicherstellen, dass jeder Workflow genau einen Trigger-Node hat
 
 ### Sicherheit
 
-- Vor jedem Commit auf versehentliche Secrets prüfen:
-  ```bash
-  grep -rE "(api_key|apikey|password|secret|token|Bearer)" workflows/ --include="*.json"
-  ```
-- Falls Secrets gefunden werden, durch `"ERSETZEN"` ersetzen und in der Dokumentation vermerken, welcher Wert benötigt wird
-- Keine `.env`-Dateien oder Credential-Exporte in dieses Repository aufnehmen
+Vor jedem Commit auf versehentliche Secrets prüfen:
+
+```bash
+grep -rE "(api_key|apikey|password|secret|token|Bearer|Authorization)" \
+  workflows/ --include="*.json" -i
+```
+
+Falls Secrets gefunden werden:
+1. Durch `"ERSETZEN"` ersetzen
+2. In der `docs/`-Datei vermerken, welcher Wert benötigt wird
+3. In `credentials/<dienst>-vorlage.json` eine Vorlage bereitstellen
+
+Niemals hinzufügen:
+- `.env`-Dateien
+- Credential-Exporte aus n8n
+- Private Schlüssel oder Zertifikate
 
 ### JSON-Validierung
 
-Vor dem Committen jede Workflow-JSON validieren:
+Vor dem Committen alle Workflow-JSONs validieren:
 
 ```bash
-# Alle Workflow-JSON-Dateien validieren
-for f in workflows/**/*.json; do
-  jq empty "$f" && echo "OK: $f" || echo "UNGÜLTIG: $f"
-done
+# Einzelne Datei
+jq empty workflows/mein-workflow.json && echo "OK"
+
+# Alle Dateien rekursiv
+find workflows/ -name "*.json" -exec sh -c \
+  'jq empty "$1" && echo "OK: $1" || echo "UNGÜLTIG: $1"' _ {} \;
 ```
+
+### Häufige Fehlerquellen
+
+| Problem | Ursache | Lösung |
+|---|---|---|
+| Workflow importiert nicht | Ungültige JSON-Syntax | `jq empty` ausführen |
+| Node verbindet sich nicht | Falsche Node-ID in `connections` | Node-IDs aus `nodes[].id` prüfen |
+| Credential fehlt | Platzhalter nicht ersetzt | Echte Credentials in n8n eintragen |
+| Falsches Ausführungsverhalten | `executionOrder` nicht `"v1"` | `settings.executionOrder` auf `"v1"` setzen |
 
 ---
 
 ## Umgebungsvariablen / Konfiguration
-
-Falls dieses Repository mit CI/CD oder Skripten verwendet wird, können folgende Umgebungsvariablen referenziert werden:
 
 | Variable | Beschreibung |
 |---|---|
@@ -229,20 +335,61 @@ Diese Werte müssen in der Umgebung oder in CI-Secrets gesetzt werden — **niem
 
 ---
 
-## Referenz: Häufige Node-Typen
+## Referenz: Node-Typen
+
+### Trigger-Nodes
 
 | Node-Typ | Zweck |
 |---|---|
-| `n8n-nodes-base.webhook` | HTTP-Webhook-Trigger |
+| `n8n-nodes-base.manualTrigger` | Manuell ausgelöste Ausführung |
+| `n8n-nodes-base.webhook` | HTTP-Webhook-Trigger (POST/GET/etc.) |
 | `n8n-nodes-base.scheduleTrigger` | Cron-/Intervall-basierter Trigger |
-| `n8n-nodes-base.httpRequest` | HTTP-Anfragen an beliebige APIs senden |
+| `n8n-nodes-base.emailTrigger` | Ausgelöst durch eingehende E-Mail (IMAP) |
+| `n8n-nodes-base.errorTrigger` | Workflow-Ausführungsfehler abfangen |
+
+### Logik & Datenverarbeitung
+
+| Node-Typ | Zweck |
+|---|---|
 | `n8n-nodes-base.set` | Feldwerte transformieren oder setzen |
-| `n8n-nodes-base.if` | Bedingte Verzweigung |
-| `n8n-nodes-base.switch` | Mehrfach-Routing |
+| `n8n-nodes-base.if` | Bedingte Verzweigung (wahr/falsch) |
+| `n8n-nodes-base.switch` | Mehrfach-Routing nach Wert |
 | `n8n-nodes-base.merge` | Daten aus mehreren Zweigen zusammenführen |
+| `n8n-nodes-base.splitInBatches` | Große Datensätze in Batches aufteilen |
+| `n8n-nodes-base.filter` | Items nach Bedingung herausfiltern |
+| `n8n-nodes-base.aggregate` | Items zu einem einzelnen zusammenfassen |
+| `n8n-nodes-base.sort` | Items sortieren |
+| `n8n-nodes-base.limit` | Anzahl der Items begrenzen |
+| `n8n-nodes-base.removeDuplicates` | Doppelte Items entfernen |
 | `n8n-nodes-base.code` | Benutzerdefiniertes JavaScript/Python ausführen |
 | `n8n-nodes-base.noOp` | Durchleitungs-/Platzhalter-Node |
-| `n8n-nodes-base.errorTrigger` | Workflow-Ausführungsfehler abfangen |
+| `n8n-nodes-base.wait` | Ausführung pausieren (Zeitverzögerung oder Webhook-Fortsetzung) |
+
+### Kommunikation & Integration
+
+| Node-Typ | Zweck |
+|---|---|
+| `n8n-nodes-base.httpRequest` | HTTP-Anfragen an beliebige APIs |
+| `n8n-nodes-base.emailSend` | E-Mail versenden (SMTP) |
+| `n8n-nodes-base.slack` | Slack-Nachrichten und -Aktionen |
+| `n8n-nodes-base.telegram` | Telegram-Nachrichten |
+| `n8n-nodes-base.gmail` | Gmail-Integration |
+| `n8n-nodes-base.googleSheets` | Google Sheets lesen/schreiben |
+| `n8n-nodes-base.airtable` | Airtable-Datenbankoperationen |
+| `n8n-nodes-base.notion` | Notion-Seiten und -Datenbanken |
+| `n8n-nodes-base.github` | GitHub-Repositories und -Issues |
+
+### Datenbank & Datei
+
+| Node-Typ | Zweck |
+|---|---|
+| `n8n-nodes-base.postgres` | PostgreSQL-Datenbankoperationen |
+| `n8n-nodes-base.mysql` | MySQL-Datenbankoperationen |
+| `n8n-nodes-base.mongodb` | MongoDB-Operationen |
+| `n8n-nodes-base.redis` | Redis-Schlüssel-Wert-Speicher |
+| `n8n-nodes-base.readWriteFile` | Lokale Dateien lesen/schreiben |
+| `n8n-nodes-base.xml` | XML parsen und konvertieren |
+| `n8n-nodes-base.spreadsheetFile` | Excel/CSV-Dateien verarbeiten |
 
 ---
 
@@ -254,3 +401,4 @@ Diese Werte müssen in der Umgebung oder in CI-Secrets gesetzt werden — **niem
 - [n8n Workflow-Vorlagen](https://n8n.io/workflows/)
 - [n8n REST-API-Referenz](https://docs.n8n.io/api/)
 - [n8n CLI-Referenz](https://docs.n8n.io/hosting/cli-commands/)
+- [n8n Self-Hosting Guide](https://docs.n8n.io/hosting/)
