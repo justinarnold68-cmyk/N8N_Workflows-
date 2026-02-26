@@ -2,33 +2,116 @@
 
 ## Zweck
 
-Dieser Workflow automatisiert die Verarbeitung von Schuldnerberatungs-Dokumenten. Sobald eine neue Datei in einem definierten Google Drive Ordner abgelegt wird, analysiert Claude (Anthropic) das Dokument, extrahiert alle relevanten Daten und füllt automatisch das Schuldnerberatungs-Webformular aus. Gleichzeitig werden die Daten in Google Sheets gespeichert.
+Dieser Workflow automatisiert die Verarbeitung von **Schuldenbriefen, Mahnungen, Inkassoschreiben und Gerichtsbescheiden**. Sobald ein neues Dokument in den Google Drive Ordner hochgeladen wird, analysiert Claude (Anthropic) den Inhalt, extrahiert alle relevanten Daten und füllt automatisch das Standard-Schuldnerberatungs-Webformular aus. Parallel werden alle Daten strukturiert in Google Sheets gespeichert.
+
+---
+
+## Welche Dokumente werden verarbeitet?
+
+| Dokumenttyp | Erkannte Mahnstufen |
+|---|---|
+| Zahlungserinnerung | `ERSTE_MAHNUNG` |
+| 2. / 3. Mahnung | `ZWEITE_MAHNUNG`, `DRITTE_MAHNUNG` |
+| Inkassoschreiben | `INKASSO` |
+| Anwaltsschreiben | `KLAGE` |
+| Mahnbescheid (Gericht) | `MAHNBESCHEID` |
+| Vollstreckungsbescheid | `VOLLSTRECKUNG` |
+| Pfändungsbescheid | `PFAENDUNG` |
+
+---
+
+## Was wird aus den Dokumenten extrahiert?
+
+### Schuldner (Empfänger des Schreibens)
+| Feld | Beschreibung |
+|---|---|
+| `schuldner_vorname` | Vorname |
+| `schuldner_nachname` | Nachname |
+| `schuldner_geburtsdatum` | Geburtsdatum (TT.MM.JJJJ) |
+| `schuldner_strasse` | Straße und Hausnummer |
+| `schuldner_plz` | Postleitzahl |
+| `schuldner_ort` | Wohnort |
+
+### Absender / Gläubiger
+| Feld | Beschreibung |
+|---|---|
+| `absender_name` | Name des Gläubigers, Inkassobüros oder der Kanzlei |
+| `absender_typ` | `GLAEUBIGER` / `INKASSO` / `ANWALT` / `GERICHT` |
+| `urspruenglicher_glaeubiger` | Bei Inkasso/Anwalt: Ursprünglicher Gläubiger |
+| `art_der_schuld` | `KREDIT` / `MIETE` / `STROM_GAS` / `TELEKOMMUNIKATION` / `VERSICHERUNG` / `KAUFVERTRAG` / `KRANKENVERSICHERUNG` / `SONSTIGES` |
+| `ursprungsvertrag` | z.B. „Ratenkredit", „Mobilfunkvertrag" |
+| `aktenzeichen` | Aktenzeichen / Referenznummer |
+| `vertragsnummer` | Vertragsnummer oder Kontonummer |
+
+### Forderungsbeträge
+| Feld | Beschreibung |
+|---|---|
+| `hauptforderung` | Hauptforderung in € |
+| `zinsen` | Zinsbetrag in € |
+| `mahngebuehren` | Mahngebühren in € |
+| `inkassokosten` | Inkasso- / Anwaltskosten in € |
+| `gesamtforderung` | **Gesamtbetrag in €** |
+| `faellig_seit` | Datum seit wann fällig |
+
+### Mahnung / Fristen
+| Feld | Beschreibung |
+|---|---|
+| `mahndatum` | Datum des Schreibens |
+| `mahnstufe` | Stufe der Mahnung (s. Tabelle oben) |
+| `zahlungsfrist` | Datum bis wann gezahlt werden muss |
+| `zahlungsfrist_tage` | Anzahl der verbleibenden Tage |
+
+### Zahlungsdaten des Gläubigers
+| Feld | Beschreibung |
+|---|---|
+| `iban_glaeubiger` | IBAN für die Zahlung |
+| `bic_glaeubiger` | BIC |
+| `bank_glaeubiger` | Bankname des Gläubigers |
+| `verwendungszweck` | Anzugebender Verwendungszweck |
+
+### Rechtliche Situation
+| Feld | Beschreibung |
+|---|---|
+| `rechtliche_schritte_angedroht` | `true` / `false` |
+| `art_rechtliche_schritte` | z.B. „Klage", „Pfändung", „Schufa-Meldung" |
+| `bereits_tituliert` | Ob Vollstreckungstitel vorliegt |
+| `aktenzeichen_gericht` | Gerichtliches Aktenzeichen |
+
+### Sonderoptionen
+| Feld | Beschreibung |
+|---|---|
+| `ratenzahlung_angeboten` | Ob Ratenzahlung angeboten wurde |
+| `ratenzahlung_betrag` | Angebotener Ratenbetrag in € |
+| `vergleich_angeboten` | Ob ein Vergleich angeboten wurde |
+| `vergleich_betrag` | Angebotener Vergleichsbetrag |
+| `besonderheiten` | Weitere wichtige Informationen |
 
 ---
 
 ## Ablauf
 
 ```
-Google Drive (neue Datei)
+Google Drive (neue Datei hochgeladen)
         │
         ▼
 Dokument herunterladen
         │
         ▼
-Datei vorbereiten (Metadaten + Binary)
+Datei vorbereiten (Metadaten ermitteln)
         │
         ▼
-Claude (Anthropic) analysiert Dokument
+Claude analysiert Schuldenbrief/Mahnung
+(extrahiert alle Felder oben)
         │
         ▼
 Daten extrahieren (JSON parsen)
         │
         ▼
 Analyse erfolgreich?
-    ├─── JA ──► Google Sheets speichern
-    │            + Webformular ausfüllen
+    ├─── JA ──► Google Sheets speichern (Blatt: "Schuldnerberatung")
+    │            + Schuldnerberatungs-Webformular ausfüllen
     │
-    └─── NEIN ► Fehlerprotokoll in Google Sheets
+    └─── NEIN ► Fehler protokollieren (Blatt: "Fehlerprotokoll")
 ```
 
 ---
@@ -37,34 +120,7 @@ Analyse erfolgreich?
 
 - **Typ:** Google Drive Trigger (Polling, jede Minute)
 - **Ereignis:** Neue Datei in einem bestimmten Ordner
-- **Unterstützte Formate:** PDF, Bilder (JPG, PNG), Google Docs, Word-Dokumente
-
----
-
-## Extrahierte Felder
-
-| Feld | Beschreibung |
-|---|---|
-| `vorname` | Vorname des Schuldners |
-| `nachname` | Nachname des Schuldners |
-| `geburtsdatum` | Geburtsdatum (TT.MM.JJJJ) |
-| `strasse` | Straße und Hausnummer |
-| `plz` | Postleitzahl |
-| `ort` | Wohnort |
-| `telefon` | Telefonnummer |
-| `email` | E-Mail-Adresse |
-| `familienstand` | ledig / verheiratet / geschieden / verwitwet |
-| `anzahl_kinder` | Anzahl unterhaltsberechtigter Kinder |
-| `beschaeftigung` | angestellt / selbständig / arbeitslos / rentner / sonstiges |
-| `arbeitgeber` | Name des Arbeitgebers |
-| `netto_einkommen` | Monatliches Nettoeinkommen (€) |
-| `sonstige_einnahmen` | Sonstige Einnahmen pro Monat (€) |
-| `miete` | Monatliche Wohnkosten (€) |
-| `lebenshaltung` | Monatliche Lebenshaltungskosten (€) |
-| `gesamtschulden` | Gesamtschuldenbetrag (€) |
-| `bank` | Hausbank |
-| `glaeubiger` | Array: `[{name, betrag, art}]` |
-| `besonderheiten` | Sonstige Anmerkungen |
+- **Empfohlene Formate:** PDF, JPG, PNG, TIFF (Scans von Briefen)
 
 ---
 
@@ -73,16 +129,11 @@ Analyse erfolgreich?
 ### 1. Google Drive OAuth2
 - **Credential-Typ in n8n:** `Google Drive OAuth2`
 - **Vorlage:** `credentials/google-drive-vorlage.json`
-- **Benötigt:**
-  - Google Cloud Projekt mit aktivierter Drive API
-  - OAuth2 Client ID und Secret
-  - Scopes: `https://www.googleapis.com/auth/drive`
+- **Scopes:** `https://www.googleapis.com/auth/drive`
 
 ### 2. Google Sheets OAuth2
 - **Credential-Typ in n8n:** `Google Sheets OAuth2`
-- **Benötigt:**
-  - Gleiche OAuth2-Credentials wie Drive oder separate
-  - Scopes: `https://www.googleapis.com/auth/spreadsheets`
+- **Scopes:** `https://www.googleapis.com/auth/spreadsheets`
 
 ### 3. Anthropic API Key
 - **Credential-Typ in n8n:** `Header Auth`
@@ -95,53 +146,33 @@ Analyse erfolgreich?
 
 ## Konfiguration vor dem Import
 
-Folgende Werte müssen nach dem Import in n8n angepasst werden:
-
-| Platzhalter | Node | Beschreibung |
+| Platzhalter | Node | Was eintragen |
 |---|---|---|
-| `ERSETZEN_GOOGLE_DRIVE_ORDNER_ID` | Google Drive Trigger | ID des Ordners, der überwacht werden soll |
-| `ERSETZEN_GOOGLE_SHEET_ID` | Google Sheets speichern / Fehler protokollieren | ID des Google Sheets Dokuments |
-| `ERSETZEN_WEBFORMULAR_URL` | Webformular ausfüllen | URL des Schuldnerberatungs-Webformulars |
-| Alle `ERSETZEN_CREDENTIAL_ID` | Verschiedene Nodes | Credential-IDs nach dem Anlegen in n8n |
-
-**Google Drive Ordner-ID finden:**
-Die Ordner-ID steht in der URL von Google Drive:
-`https://drive.google.com/drive/folders/<ORDNER_ID>`
-
-**Google Sheets ID finden:**
-Die Sheet-ID steht in der URL:
-`https://docs.google.com/spreadsheets/d/<SHEET_ID>/edit`
+| `ERSETZEN_GOOGLE_DRIVE_ORDNER_ID` | Google Drive Trigger | ID des überwachten Ordners |
+| `ERSETZEN_GOOGLE_SHEET_ID` | Google Sheets speichern & Fehler protokollieren | ID des Google Sheets |
+| `ERSETZEN_WEBFORMULAR_URL` | Webformular ausfüllen | URL des Schuldnerberatungsformulars |
+| `ERSETZEN_CREDENTIAL_ID` | Alle Google Nodes | Credential-ID nach dem Anlegen in n8n |
+| `ERSETZEN_ANTHROPIC_CREDENTIAL_ID` | Claude Dokument analysieren | Anthropic Credential-ID |
 
 ---
 
 ## Google Sheets Struktur
 
-Erstelle ein Google Sheets Dokument mit zwei Tabellenblättern:
+### Blatt 1: „Schuldnerberatung"
+Spalten: Verarbeitet am, Quelldatei, Status, Schuldner Vorname, Schuldner Nachname, Schuldner Geburtsdatum, Schuldner Straße, Schuldner PLZ, Schuldner Ort, Absender Name, Absender Typ, Urspr. Gläubiger, Art der Schuld, Ursprungsvertrag, Aktenzeichen, Mahndatum, Mahnstufe, Zahlungsfrist, Hauptforderung (€), Zinsen (€), Mahngebühren (€), Inkassokosten (€), Gesamtforderung (€), IBAN Gläubiger, Bank Gläubiger, Rechtl. Schritte angedroht, Art rechtl. Schritte, Bereits tituliert, Ratenzahlung angeboten, Ratenzahlung Betrag (€), Vergleich angeboten, Besonderheiten
 
-### Blatt 1: "Schuldnerberatung"
-Spalten: Datum, Quelldatei, Status, Vorname, Nachname, Geburtsdatum, Straße, PLZ, Ort, Telefon, Email, Familienstand, Anzahl Kinder, Beschäftigung, Arbeitgeber, Netto Einkommen (€), Sonstige Einnahmen (€), Miete (€), Lebenshaltung (€), Gesamtschulden (€), Bank, Besonderheiten, Gläubiger (JSON)
-
-### Blatt 2: "Fehlerprotokoll"
+### Blatt 2: „Fehlerprotokoll"
 Spalten: Datum, Datei, Fehler, Status
 
 ---
 
-## Webformular-Integration
+## Datenschutz-Hinweise (DSGVO)
 
-Der Node "Webformular ausfüllen" sendet einen **HTTP POST** mit allen extrahierten Daten als JSON an die Formular-URL. Falls das Zielformular:
-- **Andere Feldnamen** verwendet → Code im Node `jsonBody` anpassen
-- **Authentifizierung** benötigt → Header Auth im Node ergänzen
-- **Multipart/Form-Data** erwartet → Body-Typ im Node ändern
-
----
-
-## Datenschutz-Hinweise
-
-- Alle verarbeiteten Dokumente enthalten sensible personenbezogene Daten (DSGVO-relevant)
-- Google Drive, Google Sheets und Anthropic müssen den DSGVO-Anforderungen entsprechen
-- Anthropic-Datenverarbeitungsvertrag (DPA) prüfen und ggf. abschließen
-- Zugriff auf den Google Drive Ordner und das Sheets-Dokument auf autorisierte Personen beschränken
-- Verarbeitungsprotokoll gemäß Art. 30 DSGVO führen
+- Schuldenbriefe enthalten **besonders sensible personenbezogene Daten**
+- Anthropic DPA (Datenverarbeitungsvertrag) prüfen und abschließen
+- Zugriff auf Google Drive Ordner und Sheets auf autorisierte Personen beschränken
+- Verarbeitungsverzeichnis gemäß Art. 30 DSGVO führen
+- Aufbewahrungsfristen für die Daten festlegen und einhalten
 
 ---
 
@@ -150,17 +181,11 @@ Der Node "Webformular ausfüllen" sendet einen **HTTP POST** mit allen extrahier
 ```bash
 # Workflow importieren
 n8n import:workflow --input=workflows/schuldnerberatung/dokument-analyse-formular-ausfuellen.json
-
-# Oder über die n8n-API
-curl -X POST \
-  -H "X-N8N-API-KEY: $N8N_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d @workflows/schuldnerberatung/dokument-analyse-formular-ausfuellen.json \
-  "$N8N_BASE_URL/api/v1/workflows"
 ```
 
 Nach dem Import in n8n:
-1. Credentials für Google Drive, Google Sheets und Anthropic anlegen
-2. Platzhalter-Werte in den Nodes ersetzen
-3. Workflow in einer **Staging-Umgebung** testen
-4. Workflow aktivieren (Toggle oben rechts in n8n)
+1. Credentials anlegen (Google Drive, Google Sheets, Anthropic)
+2. Platzhalter in den Nodes ersetzen
+3. Google Sheets Dokument mit beiden Blättern erstellen
+4. In **Staging-Umgebung** testen
+5. Workflow aktivieren
