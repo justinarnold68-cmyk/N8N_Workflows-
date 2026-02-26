@@ -1,0 +1,339 @@
+{
+  "name": "Schuldnerberatung Dokument Analyse und Formular",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "ERSETZEN_GOOGLE_DRIVE_ORDNER_ID",
+          "mode": "id"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ERSETZEN_CREDENTIAL_ID",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0002-0002-0002-000000000002",
+      "name": "Dokument herunterladen",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [460, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ERSETZEN_CREDENTIAL_ID",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dateiname und MIME-Typ ermitteln\nconst fileName = $('Google Drive Trigger').item.json.name || 'dokument';\nconst mimeType = $('Google Drive Trigger').item.json.mimeType || '';\nconst fileId = $('Google Drive Trigger').item.json.id;\nconst fileSize = $('Google Drive Trigger').item.json.size || 0;\n\n// Binarydaten prüfen\nconst binaryData = $input.item.binary;\nlet base64Content = '';\n\nif (binaryData && binaryData.data) {\n  base64Content = binaryData.data.data;\n}\n\nreturn [{\n  json: {\n    fileName,\n    mimeType,\n    fileId,\n    fileSize,\n    base64Content,\n    isImage: mimeType.startsWith('image/'),\n    isPDF: mimeType === 'application/pdf',\n    timestamp: new Date().toISOString()\n  },\n  binary: binaryData\n}];"
+      },
+      "id": "a1b2c3d4-0003-0003-0003-000000000003",
+      "name": "Datei vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-opus-4-6\",\n  \"max_tokens\": 4096,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"Du bist ein spezialisierter KI-Assistent für deutsche Schuldnerberatung. Analysiere das folgende Dokument und extrahiere alle relevanten Informationen für ein Schuldnerberatungsformular.\\n\\nExtrahiere folgende Felder (falls vorhanden):\\n- vorname: Vorname der Person\\n- nachname: Nachname der Person\\n- geburtsdatum: Geburtsdatum (Format: TT.MM.JJJJ)\\n- strasse: Straße und Hausnummer\\n- plz: Postleitzahl\\n- ort: Wohnort\\n- telefon: Telefonnummer\\n- email: E-Mail-Adresse\\n- familienstand: Familienstand (ledig/verheiratet/geschieden/verwitwet)\\n- anzahl_kinder: Anzahl der unterhaltsberechtigten Kinder\\n- beschaeftigung: Beschäftigungsstatus (angestellt/selbständig/arbeitslos/rentner/sonstiges)\\n- arbeitgeber: Name des Arbeitgebers (falls zutreffend)\\n- netto_einkommen: Monatliches Nettoeinkommen in Euro\\n- sonstige_einnahmen: Sonstige monatliche Einnahmen in Euro\\n- miete: Monatliche Miete/Wohnkosten in Euro\\n- lebenshaltung: Geschätzte monatliche Lebenshaltungskosten in Euro\\n- glaeubiger: Array von Gläubigern mit Name, Betrag und Art der Schuld\\n- gesamtschulden: Gesamtschuldenbetrag in Euro\\n- bank: Name der Hausbank\\n- iban: IBAN (falls vorhanden, anonymisiert)\\n- besonderheiten: Besondere Umstände oder Anmerkungen\\n\\nAntworte NUR mit einem validen JSON-Objekt. Setze nicht gefundene Felder auf null. Beispiel für glaeubiger: [{\\\"name\\\": \\\"Bank XY\\\", \\\"betrag\\\": 5000, \\\"art\\\": \\\"Kredit\\\"}]\\n\\nDokumentinhalt/Dateiname: {{ $json.fileName }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0004-0004-0004-000000000004",
+      "name": "Claude Dokument analysieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ERSETZEN_ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Claude-Antwort parsen\nconst responseBody = $input.item.json;\nlet extractedData = {};\n\ntry {\n  // Anthropic-Antwortstruktur: body.content[0].text\n  const rawText = responseBody.content[0].text;\n  \n  // JSON aus dem Text extrahieren\n  const jsonMatch = rawText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    extractedData = JSON.parse(jsonMatch[0]);\n  }\n} catch (error) {\n  extractedData = { fehler: 'JSON-Parsing fehlgeschlagen: ' + error.message };\n}\n\n// Dateinamen vom Trigger holen\nconst fileName = $('Google Drive Trigger').item.json.name || 'unbekannt';\nconst fileId = $('Google Drive Trigger').item.json.id;\n\nreturn [{\n  json: {\n    ...extractedData,\n    _meta: {\n      quelldatei: fileName,\n      datei_id: fileId,\n      verarbeitet_am: new Date().toISOString(),\n      status: extractedData.fehler ? 'Fehler' : 'Erfolg'\n    }\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0005-0005-0005-000000000005",
+      "name": "Daten extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "ERSETZEN_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Schuldnerberatung",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Datum": "={{ $json._meta.verarbeitet_am }}",
+            "Quelldatei": "={{ $json._meta.quelldatei }}",
+            "Status": "={{ $json._meta.status }}",
+            "Vorname": "={{ $json.vorname }}",
+            "Nachname": "={{ $json.nachname }}",
+            "Geburtsdatum": "={{ $json.geburtsdatum }}",
+            "Straße": "={{ $json.strasse }}",
+            "PLZ": "={{ $json.plz }}",
+            "Ort": "={{ $json.ort }}",
+            "Telefon": "={{ $json.telefon }}",
+            "Email": "={{ $json.email }}",
+            "Familienstand": "={{ $json.familienstand }}",
+            "Anzahl Kinder": "={{ $json.anzahl_kinder }}",
+            "Beschäftigung": "={{ $json.beschaeftigung }}",
+            "Arbeitgeber": "={{ $json.arbeitgeber }}",
+            "Netto Einkommen (€)": "={{ $json.netto_einkommen }}",
+            "Sonstige Einnahmen (€)": "={{ $json.sonstige_einnahmen }}",
+            "Miete (€)": "={{ $json.miete }}",
+            "Lebenshaltung (€)": "={{ $json.lebenshaltung }}",
+            "Gesamtschulden (€)": "={{ $json.gesamtschulden }}",
+            "Bank": "={{ $json.bank }}",
+            "Besonderheiten": "={{ $json.besonderheiten }}",
+            "Gläubiger (JSON)": "={{ JSON.stringify($json.glaeubiger) }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0006-0006-0006-000000000006",
+      "name": "Google Sheets speichern",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1340, 160],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ERSETZEN_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "ERSETZEN_WEBFORMULAR_URL",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"vorname\": \"{{ $json.vorname }}\",\n  \"nachname\": \"{{ $json.nachname }}\",\n  \"geburtsdatum\": \"{{ $json.geburtsdatum }}\",\n  \"strasse\": \"{{ $json.strasse }}\",\n  \"plz\": \"{{ $json.plz }}\",\n  \"ort\": \"{{ $json.ort }}\",\n  \"telefon\": \"{{ $json.telefon }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"familienstand\": \"{{ $json.familienstand }}\",\n  \"anzahl_kinder\": \"{{ $json.anzahl_kinder }}\",\n  \"beschaeftigung\": \"{{ $json.beschaeftigung }}\",\n  \"arbeitgeber\": \"{{ $json.arbeitgeber }}\",\n  \"netto_einkommen\": \"{{ $json.netto_einkommen }}\",\n  \"sonstige_einnahmen\": \"{{ $json.sonstige_einnahmen }}\",\n  \"miete\": \"{{ $json.miete }}\",\n  \"lebenshaltung\": \"{{ $json.lebenshaltung }}\",\n  \"gesamtschulden\": \"{{ $json.gesamtschulden }}\",\n  \"bank\": \"{{ $json.bank }}\",\n  \"besonderheiten\": \"{{ $json.besonderheiten }}\",\n  \"glaeubiger\": {{ JSON.stringify($json.glaeubiger) }}\n}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0007-0007-0007-000000000007",
+      "name": "Webformular ausfüllen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 440]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-001",
+              "leftValue": "={{ $json._meta.status }}",
+              "rightValue": "Erfolg",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0008-0008-0008-000000000008",
+      "name": "Analyse erfolgreich?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 540]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "ERSETZEN_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Fehlerprotokoll",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Datum": "={{ $json._meta.verarbeitet_am }}",
+            "Datei": "={{ $json._meta.quelldatei }}",
+            "Fehler": "={{ $json.fehler }}",
+            "Status": "Fehlgeschlagen"
+          }
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0009-0009-0009-000000000009",
+      "name": "Fehler protokollieren",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1340, 640],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ERSETZEN_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Dokument herunterladen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dokument herunterladen": {
+      "main": [
+        [
+          {
+            "node": "Datei vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datei vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "Claude Dokument analysieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Dokument analysieren": {
+      "main": [
+        [
+          {
+            "node": "Daten extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daten extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Analyse erfolgreich?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyse erfolgreich?": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets speichern",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Webformular ausfüllen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler protokollieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ERSETZEN"
+  }
+}
