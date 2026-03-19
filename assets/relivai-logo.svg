@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420">
+  <defs>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="420" fill="#0a0a14"/>
+
+  <!-- ── Neural Network Symbol (left) ── -->
+  <!-- Layer 1: 3 input nodes -->
+  <circle cx="110" cy="155" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="110" cy="210" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="110" cy="265" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+
+  <!-- Layer 2: 4 hidden nodes -->
+  <circle cx="210" cy="135" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="210" cy="185" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="210" cy="235" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="210" cy="285" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+
+  <!-- Layer 3: 3 hidden nodes -->
+  <circle cx="310" cy="155" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="310" cy="210" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+  <circle cx="310" cy="265" r="10" fill="url(#nodeGrad)" filter="url(#glow)"/>
+
+  <!-- Layer 4: 1 output node -->
+  <circle cx="400" cy="210" r="13" fill="url(#nodeGrad)" filter="url(#glow)"/>
+
+  <!-- Connections Layer 1 → Layer 2 -->
+  <g stroke="#7c3aed" stroke-width="1.2" opacity="0.5">
+    <line x1="120" y1="155" x2="200" y2="135"/>
+    <line x1="120" y1="155" x2="200" y2="185"/>
+    <line x1="120" y1="155" x2="200" y2="235"/>
+    <line x1="120" y1="155" x2="200" y2="285"/>
+    <line x1="120" y1="210" x2="200" y2="135"/>
+    <line x1="120" y1="210" x2="200" y2="185"/>
+    <line x1="120" y1="210" x2="200" y2="235"/>
+    <line x1="120" y1="210" x2="200" y2="285"/>
+    <line x1="120" y1="265" x2="200" y2="135"/>
+    <line x1="120" y1="265" x2="200" y2="185"/>
+    <line x1="120" y1="265" x2="200" y2="235"/>
+    <line x1="120" y1="265" x2="200" y2="285"/>
+  </g>
+
+  <!-- Connections Layer 2 → Layer 3 -->
+  <g stroke="#6366f1" stroke-width="1.2" opacity="0.5">
+    <line x1="220" y1="135" x2="300" y2="155"/>
+    <line x1="220" y1="135" x2="300" y2="210"/>
+    <line x1="220" y1="135" x2="300" y2="265"/>
+    <line x1="220" y1="185" x2="300" y2="155"/>
+    <line x1="220" y1="185" x2="300" y2="210"/>
+    <line x1="220" y1="185" x2="300" y2="265"/>
+    <line x1="220" y1="235" x2="300" y2="155"/>
+    <line x1="220" y1="235" x2="300" y2="210"/>
+    <line x1="220" y1="235" x2="300" y2="265"/>
+    <line x1="220" y1="285" x2="300" y2="155"/>
+    <line x1="220" y1="285" x2="300" y2="210"/>
+    <line x1="220" y1="285" x2="300" y2="265"/>
+  </g>
+
+  <!-- Connections Layer 3 → Output -->
+  <g stroke="#3b82f6" stroke-width="1.5" opacity="0.7">
+    <line x1="320" y1="155" x2="387" y2="210"/>
+    <line x1="320" y1="210" x2="387" y2="210"/>
+    <line x1="320" y1="265" x2="387" y2="210"/>
+  </g>
+
+  <!-- ── Wordmark ── -->
+  <text
+    x="640" y="240"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="96"
+    font-weight="300"
+    fill="url(#textGrad)"
+    letter-spacing="6"
+    text-anchor="middle"
+    filter="url(#glow)">RELIV AI</text>
+
+  <!-- Thin underline accent -->
+  <line x1="455" y1="262" x2="830" y2="262" stroke="url(#textGrad)" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Tagline -->
+  <text
+    x="640" y="295"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="16"
+    font-weight="300"
+    fill="#6366f1"
+    letter-spacing="5"
+    text-anchor="middle"
+    opacity="0.8">ARTIFICIAL INTELLIGENCE</text>
+
+</svg>
