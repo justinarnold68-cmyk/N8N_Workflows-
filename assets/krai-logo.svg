@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+  <defs>
+    <!-- Vertical gradient for the main arc -->
+    <linearGradient id="arcGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#1565c0"/>
+    </linearGradient>
+
+    <!-- Horizontal gradient for circuit traces -->
+    <linearGradient id="traceGradTop" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#00bcd4"/>
+    </linearGradient>
+    <linearGradient id="traceGradMid" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#00acc1"/>
+      <stop offset="100%" stop-color="#0288d1"/>
+    </linearGradient>
+    <linearGradient id="traceGradBot" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0277bd"/>
+      <stop offset="100%" stop-color="#1565c0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="800" height="420" fill="#0d1117"/>
+
+  <!-- ── KRAI Wordmark ── -->
+  <text
+    x="280" y="228"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="82"
+    font-weight="200"
+    fill="#ffffff"
+    letter-spacing="16"
+    text-anchor="middle">KRAI</text>
+
+  <!-- ── Circuit Board Symbol ── -->
+  <!--
+    D-shape arc: center (562, 210), radius 88
+    Arc from (562, 122) curves right to (562, 298)
+    Traces run horizontally from left-side nodes into the arc.
+  -->
+
+  <!-- Main D-arc -->
+  <path
+    d="M 562 130 A 83 83 0 0 1 562 290"
+    stroke="url(#arcGrad)"
+    stroke-width="9"
+    fill="none"
+    stroke-linecap="round"/>
+
+  <!-- ── Circuit traces + endpoint nodes ── -->
+
+  <!-- Trace 1 — y=150, bright cyan -->
+  <line x1="450" y1="150" x2="555" y2="150"
+        stroke="#00e5ff" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="450" cy="150" r="7" fill="#00e5ff"/>
+
+  <!-- Trace 2 — y=168 -->
+  <line x1="430" y1="168" x2="555" y2="168"
+        stroke="#00daf2" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="430" cy="168" r="7" fill="#00daf2"/>
+
+  <!-- Trace 3 — y=187 -->
+  <line x1="420" y1="187" x2="555" y2="187"
+        stroke="#00cde8" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="420" cy="187" r="7" fill="#00cde8"/>
+
+  <!-- Trace 4 — y=206 (center) -->
+  <line x1="417" y1="206" x2="555" y2="206"
+        stroke="#00b8de" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="417" cy="206" r="7" fill="#00b8de"/>
+
+  <!-- Trace 5 — y=225 -->
+  <line x1="420" y1="225" x2="555" y2="225"
+        stroke="#0099cc" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="420" cy="225" r="7" fill="#0099cc"/>
+
+  <!-- Trace 6 — y=244 -->
+  <line x1="430" y1="244" x2="555" y2="244"
+        stroke="#007bb8" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="430" cy="244" r="7" fill="#007bb8"/>
+
+  <!-- Trace 7 — y=262, deep blue -->
+  <line x1="450" y1="262" x2="555" y2="262"
+        stroke="#1565c0" stroke-width="3.2" stroke-linecap="round"/>
+  <circle cx="450" cy="262" r="7" fill="#1565c0"/>
+
+  <!-- Small midpoint nodes on traces (inner accent) -->
+  <circle cx="500" cy="150" r="4" fill="#00e5ff" opacity="0.55"/>
+  <circle cx="500" cy="168" r="4" fill="#00daf2" opacity="0.55"/>
+  <circle cx="500" cy="187" r="4" fill="#00cde8" opacity="0.55"/>
+  <circle cx="500" cy="206" r="4" fill="#00b8de" opacity="0.55"/>
+  <circle cx="500" cy="225" r="4" fill="#0099cc" opacity="0.55"/>
+  <circle cx="500" cy="244" r="4" fill="#007bb8" opacity="0.55"/>
+  <circle cx="500" cy="262" r="4" fill="#1565c0" opacity="0.55"/>
+
+</svg>
