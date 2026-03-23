@@ -2,309 +2,266 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RelivAI – Flyer Handwerk</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #ffffff;
+      width: 210mm;
+      height: 297mm;
+      overflow: hidden;
     }
 
     .flyer {
       width: 210mm;
-      min-height: 297mm;
-      background: #ffffff;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      height: 297mm;
       display: flex;
       flex-direction: column;
+      background: #ffffff;
     }
 
-    /* ── Header ── */
+    /* ── HEADER ── */
     .header {
-      background: linear-gradient(135deg, #0f1923 0%, #1a2d40 60%, #0f1923 100%);
-      padding: 44px 48px 36px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -60px;
-      right: -60px;
-      width: 260px;
-      height: 260px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,180,255,0.18) 0%, transparent 70%);
-    }
-
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: -40px;
-      left: 30%;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,220,180,0.12) 0%, transparent 70%);
+      background: #0f1923;
+      padding: 28px 40px 22px;
+      flex-shrink: 0;
     }
 
     .brand-row {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 28px;
+      gap: 12px;
+      margin-bottom: 5px;
     }
 
     .logo-icon {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, #00b4ff, #00dcb4);
-      border-radius: 14px;
+      width: 42px;
+      height: 42px;
+      background: #00b4ff;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 900;
       color: #fff;
-      letter-spacing: -2px;
-      flex-shrink: 0;
     }
 
     .brand-name {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
       color: #ffffff;
       letter-spacing: -0.5px;
     }
 
     .brand-name span {
-      background: linear-gradient(90deg, #00b4ff, #00dcb4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #00b4ff;
     }
 
     .tagline {
-      font-size: 13px;
+      font-size: 10px;
       font-weight: 400;
-      color: rgba(255,255,255,0.55);
-      letter-spacing: 2px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 2.5px;
       text-transform: uppercase;
-      margin-left: 66px;
-      margin-top: -22px;
-      margin-bottom: 28px;
+      margin-left: 54px;
+      margin-bottom: 16px;
     }
 
     .header-headline {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       color: #ffffff;
-      line-height: 1.3;
-      max-width: 500px;
+      line-height: 1.25;
     }
 
     .header-headline .accent {
-      background: linear-gradient(90deg, #00b4ff, #00dcb4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #00b4ff;
     }
 
     .header-sub {
-      font-size: 14px;
+      font-size: 12.5px;
       color: rgba(255,255,255,0.65);
-      margin-top: 10px;
+      margin-top: 8px;
       line-height: 1.5;
-      max-width: 480px;
+      max-width: 460px;
     }
 
-    /* ── Divider strip ── */
+    /* ── Strip ── */
     .strip {
-      height: 5px;
-      background: linear-gradient(90deg, #00b4ff, #00dcb4, #00b4ff);
+      height: 4px;
+      background: linear-gradient(90deg, #00b4ff, #00dcb4);
+      flex-shrink: 0;
     }
 
-    /* ── Body ── */
+    /* ── BODY ── */
     .body {
       flex: 1;
-      padding: 36px 48px;
+      padding: 20px 40px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      gap: 16px;
+      overflow: hidden;
     }
 
-    /* Intro text */
     .intro {
-      font-size: 15px;
+      font-size: 13px;
       color: #2c3e50;
-      line-height: 1.7;
+      line-height: 1.6;
       border-left: 4px solid #00b4ff;
-      padding-left: 16px;
+      padding-left: 14px;
     }
 
-    .intro strong {
-      color: #0f1923;
-    }
+    .intro strong { color: #0f1923; }
 
-    /* ── Pain-points box ── */
+    /* Pain box */
     .pain-box {
       background: #f7f9fc;
-      border-radius: 12px;
-      padding: 24px 28px;
+      border-radius: 10px;
+      padding: 16px 20px;
     }
 
     .section-label {
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 700;
       letter-spacing: 2.5px;
       text-transform: uppercase;
       color: #00b4ff;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .pain-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 7px;
     }
 
     .pain-list li {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      font-size: 14px;
+      font-size: 12.5px;
       color: #3d4d60;
-      line-height: 1.45;
+      line-height: 1.4;
     }
 
-    .pain-list li .icon {
-      width: 20px;
-      height: 20px;
+    .pain-dot {
+      width: 18px;
+      height: 18px;
       flex-shrink: 0;
-      background: linear-gradient(135deg, #ffe0e0, #ffd0d0);
+      background: #ffe0e0;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 10px;
       margin-top: 1px;
     }
 
-    /* ── Solutions grid ── */
+    /* Solutions grid */
     .solutions-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 10px;
     }
 
     .solution-card {
-      background: linear-gradient(135deg, #f0fbff 0%, #e8faf5 100%);
-      border: 1px solid rgba(0,180,255,0.15);
-      border-radius: 10px;
-      padding: 16px 18px;
-    }
-
-    .solution-card .card-icon {
-      font-size: 22px;
-      margin-bottom: 8px;
+      background: #f0fbff;
+      border: 1px solid rgba(0,180,255,0.2);
+      border-radius: 8px;
+      padding: 13px 15px;
     }
 
     .solution-card h4 {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: #0f1923;
       margin-bottom: 4px;
     }
 
     .solution-card p {
-      font-size: 12px;
+      font-size: 11.5px;
       color: #5a6b7a;
-      line-height: 1.45;
+      line-height: 1.4;
     }
 
-    /* ── Why connect ── */
+    /* Why box */
     .why-box {
-      background: linear-gradient(135deg, #0f1923 0%, #1a2d40 100%);
-      border-radius: 12px;
-      padding: 24px 28px;
+      background: #0f1923;
+      border-radius: 10px;
+      padding: 16px 20px;
     }
 
-    .why-box .section-label {
-      color: #00dcb4;
-    }
+    .why-box .section-label { color: #00dcb4; }
 
     .why-box p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.8);
-      line-height: 1.65;
+      font-size: 12.5px;
+      color: #ffffff;
+      line-height: 1.55;
+      margin-bottom: 10px;
     }
 
-    .why-box p strong {
-      color: #ffffff;
-    }
+    .why-box p strong { color: #00dcb4; }
 
     .why-points {
       list-style: none;
-      margin-top: 14px;
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 7px;
     }
 
     .why-points li {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-      color: rgba(255,255,255,0.8);
+      gap: 8px;
+      font-size: 12px;
+      color: #ffffff;
       line-height: 1.4;
     }
 
-    .why-points li::before {
-      content: '→';
+    .why-points li .arr {
       color: #00dcb4;
       font-weight: 700;
       flex-shrink: 0;
     }
 
-    /* ── Footer / CTA ── */
+    /* ── FOOTER ── */
     .footer {
       background: #f7f9fc;
-      border-top: 1px solid #e8ecf0;
-      padding: 24px 48px;
+      border-top: 1px solid #e0e6ed;
+      padding: 14px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      flex-shrink: 0;
     }
 
     .cta-text h3 {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       color: #0f1923;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .cta-text p {
-      font-size: 13px;
+      font-size: 11.5px;
       color: #5a6b7a;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #00b4ff;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
     }
 
     .contact-info {
@@ -319,171 +276,115 @@
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
-      font-size: 13px;
+      font-size: 12px;
       color: #2c3e50;
+      white-space: nowrap;
     }
 
     .contact-item .ci-label {
-      font-weight: 600;
+      font-weight: 700;
       color: #0f1923;
     }
 
-    .no-sale-badge {
-      display: inline-block;
-      background: linear-gradient(90deg, #00b4ff, #00dcb4);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 5px 14px;
-      border-radius: 20px;
-      margin-top: 8px;
-    }
-
-    /* ── Print styles ── */
     @media print {
-      body {
-        background: white;
-        padding: 0;
-      }
-      .flyer {
-        box-shadow: none;
-        width: 210mm;
-        min-height: 297mm;
-      }
+      body { background: white; }
     }
   </style>
 </head>
 <body>
-  <div class="flyer">
+<div class="flyer">
 
-    <!-- ── HEADER ── -->
-    <div class="header">
-      <div class="brand-row">
-        <div class="logo-icon">R</div>
-        <div class="brand-name">Reliv<span>AI</span></div>
-      </div>
-      <div class="tagline">KI-Automatisierung &amp; Prozessoptimierung</div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand-row">
+      <div class="logo-icon">R</div>
+      <div class="brand-name">Reliv<span>AI</span></div>
+    </div>
+    <div class="tagline">KI-Automatisierung &amp; Prozessoptimierung</div>
+    <div class="header-headline">
+      Weniger Verwaltung.<br>
+      Mehr Zeit fürs <span class="accent">Handwerk.</span>
+    </div>
+    <p class="header-sub">
+      Ich helfe Handwerksbetrieben dabei, wiederkehrende Aufgaben zu automatisieren –
+      damit Sie sich auf das konzentrieren können, was Sie wirklich gut können.
+    </p>
+  </div>
 
-      <div class="header-headline">
-        Weniger Verwaltung.<br>
-        Mehr Zeit fürs <span class="accent">Handwerk.</span>
-      </div>
-      <p class="header-sub">
-        Ich helfe Handwerksbetrieben dabei, wiederkehrende Aufgaben zu automatisieren –
-        damit Sie sich auf das konzentrieren können, was Sie wirklich gut können.
-      </p>
+  <div class="strip"></div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <p class="intro">
+      Hallo! Mein Name ist <strong>[Ihr Name]</strong> und ich bin Gründer von <strong>RelivAI</strong> –
+      einer kleinen Agentur für smarte KI-Automatisierung. Ich bin nicht hier, um etwas zu verkaufen –
+      ich möchte einfach <strong>kennenlernen, wo der Schuh drückt</strong>, und schauen,
+      ob ich einen echten Mehrwert bieten kann.
+    </p>
+
+    <!-- Pain points -->
+    <div class="pain-box">
+      <div class="section-label">Kennen Sie das?</div>
+      <ul class="pain-list">
+        <li><span class="pain-dot">!</span> Angebote, Rechnungen &amp; Terminabsprachen kosten täglich wertvolle Stunden.</li>
+        <li><span class="pain-dot">!</span> Kundenanfragen häufen sich, aber niemand hat Zeit, sofort zu antworten.</li>
+        <li><span class="pain-dot">!</span> Materialbestellungen, Nachkalkulationen oder Dokumentation laufen noch manuell.</li>
+        <li><span class="pain-dot">!</span> Die gleichen Informationen werden immer wieder per Hand in verschiedene Systeme eingetippt.</li>
+      </ul>
     </div>
 
-    <div class="strip"></div>
-
-    <!-- ── BODY ── -->
-    <div class="body">
-
-      <!-- Intro -->
-      <p class="intro">
-        Hallo! Mein Name ist <strong>[Ihr Name]</strong> und ich bin Gründer von <strong>RelivAI</strong> –
-        einer kleinen Agentur, die sich darauf spezialisiert hat, Unternehmen mit smarter
-        KI-Automatisierung zu unterstützen. Ich bin nicht hier, um etwas zu verkaufen –
-        ich möchte einfach <strong>kennenlernen, wo der Schuh drückt</strong>, und schauen,
-        ob ich einen echten Mehrwert bieten kann.
-      </p>
-
-      <!-- Pain points -->
-      <div class="pain-box">
-        <div class="section-label">Kennen Sie das?</div>
-        <ul class="pain-list">
-          <li>
-            <span class="icon">😩</span>
-            Angebote, Rechnungen &amp; Terminabsprachen kosten täglich wertvolle Stunden.
-          </li>
-          <li>
-            <span class="icon">📞</span>
-            Kundenanfragen häufen sich, aber niemand hat Zeit, sofort zu antworten.
-          </li>
-          <li>
-            <span class="icon">📋</span>
-            Materialbestellungen, Nachkalkulationen oder Dokumentation laufen noch manuell.
-          </li>
-          <li>
-            <span class="icon">🔁</span>
-            Die gleichen Informationen werden immer wieder per Hand in verschiedene
-            Systeme eingetippt.
-          </li>
-        </ul>
-      </div>
-
-      <!-- Solutions grid -->
-      <div>
-        <div class="section-label">Wie KI-Automatisierung helfen kann</div>
-        <div class="solutions-grid">
-          <div class="solution-card">
-            <div class="card-icon">🗓️</div>
-            <h4>Terminbuchung automatisieren</h4>
-            <p>Kunden buchen online – Kalender, Erinnerungen und Bestätigungen laufen von selbst.</p>
-          </div>
-          <div class="solution-card">
-            <div class="card-icon">💬</div>
-            <h4>Kundenanfragen per KI beantworten</h4>
-            <p>Ein KI-Assistent beantwortet häufige Fragen rund um die Uhr – per WhatsApp oder Website.</p>
-          </div>
-          <div class="solution-card">
-            <div class="card-icon">📄</div>
-            <h4>Angebote &amp; Rechnungen</h4>
-            <p>Automatisch erstellt und versendet – auf Basis Ihrer Stammdaten und Preislisten.</p>
-          </div>
-          <div class="solution-card">
-            <div class="card-icon">🔗</div>
-            <h4>Systeme verbinden</h4>
-            <p>Handwerkssoftware, E-Mail, WhatsApp &amp; Co. – alles spricht miteinander.</p>
-          </div>
+    <!-- Solutions -->
+    <div>
+      <div class="section-label">Wie KI-Automatisierung helfen kann</div>
+      <div class="solutions-grid">
+        <div class="solution-card">
+          <h4>Terminbuchung automatisieren</h4>
+          <p>Kunden buchen online – Kalender, Erinnerungen und Bestätigungen laufen von selbst.</p>
+        </div>
+        <div class="solution-card">
+          <h4>Kundenanfragen per KI beantworten</h4>
+          <p>Ein KI-Assistent beantwortet häufige Fragen rund um die Uhr – per WhatsApp oder Website.</p>
+        </div>
+        <div class="solution-card">
+          <h4>Angebote &amp; Rechnungen</h4>
+          <p>Automatisch erstellt und versendet – auf Basis Ihrer Stammdaten und Preislisten.</p>
+        </div>
+        <div class="solution-card">
+          <h4>Systeme verbinden</h4>
+          <p>Handwerkssoftware, E-Mail, WhatsApp &amp; Co. – alles spricht miteinander.</p>
         </div>
       </div>
-
-      <!-- Why connect -->
-      <div class="why-box">
-        <div class="section-label">Warum sollten wir uns austauschen?</div>
-        <p>
-          Ich bin kein Konzern – ich bin ein Unternehmer wie Sie.
-          Mein Ziel ist es, <strong>echte Probleme zu lösen</strong>, keine Software zu verkaufen.
-        </p>
-        <ul class="why-points">
-          <li>Unverbindliches Kennenlerngespräch – 30 Minuten, kein Druck, kein Pitch.</li>
-          <li>Ich zeige Ihnen konkret, was in Ihrem Betrieb automatisierbar wäre.</li>
-          <li>Erst wenn Sie selbst sehen, dass es einen Unterschied macht, reden wir weiter.</li>
-          <li>Lokales Netzwerk aufbauen – gegenseitiger Austausch und Empfehlungen.</li>
-        </ul>
-      </div>
-
     </div>
 
-    <!-- ── FOOTER / CTA ── -->
-    <div class="footer">
-      <div class="cta-text">
-        <h3>Einfach kurz melden – ich freue mich!</h3>
-        <p>Kein Verkaufsgespräch. Nur ein ehrlicher Austausch.</p>
-        <span class="no-sale-badge">Kein Verkauf &mdash; Nur Vernetzung</span>
-      </div>
-      <div class="contact-info">
-        <div class="contact-item">
-          <span class="ci-label">Web:</span>
-          <span>www.reliv-ai.de</span>
-        </div>
-        <div class="contact-item">
-          <span class="ci-label">Mail:</span>
-          <span>hallo@reliv-ai.de</span>
-        </div>
-        <div class="contact-item">
-          <span class="ci-label">Tel.:</span>
-          <span>+49 XXX XXXXXXX</span>
-        </div>
-        <div class="contact-item" style="margin-top:4px; font-size:11px; color:#8a9aaa;">
-          RelivAI &mdash; KI-Automatisierung f&uuml;r den Mittelstand
-        </div>
-      </div>
+    <!-- Why connect -->
+    <div class="why-box">
+      <div class="section-label">Warum sollten wir uns austauschen?</div>
+      <p>Ich bin kein Konzern – ich bin ein Unternehmer wie Sie. Mein Ziel ist es, <strong>echte Probleme zu lösen</strong>, keine Software zu verkaufen.</p>
+      <ul class="why-points">
+        <li><span class="arr">→</span> Unverbindliches Kennenlerngespräch – 30 Minuten, kein Druck, kein Pitch.</li>
+        <li><span class="arr">→</span> Ich zeige Ihnen konkret, was in Ihrem Betrieb automatisierbar wäre.</li>
+        <li><span class="arr">→</span> Erst wenn Sie selbst sehen, dass es einen Unterschied macht, reden wir weiter.</li>
+        <li><span class="arr">→</span> Lokales Netzwerk aufbauen – gegenseitiger Austausch und Empfehlungen.</li>
+      </ul>
     </div>
 
   </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="cta-text">
+      <h3>Einfach kurz melden – ich freue mich!</h3>
+      <p>Kein Verkaufsgespräch. Nur ein ehrlicher Austausch.</p>
+      <span class="badge">Kein Verkauf — Nur Vernetzung</span>
+    </div>
+    <div class="contact-info">
+      <div class="contact-item"><span class="ci-label">Web:</span> www.reliv-ai.de</div>
+      <div class="contact-item"><span class="ci-label">Mail:</span> hallo@reliv-ai.de</div>
+      <div class="contact-item"><span class="ci-label">Tel.:</span> +49 XXX XXXXXXX</div>
+    </div>
+  </div>
+
+</div>
 </body>
 </html>
